@@ -7,10 +7,9 @@ app.use(express.json());
 const defaultRoute = require('./routes/default.route');
 const healthRoutes = require('./routes/health.route');
 const authRoutes = require('./routes/auth.route');
-app.use('/health',healthRoutes);
+app.use('/health', healthRoutes);
 app.use('/', defaultRoute);
 app.use('/auth', authRoutes);
-
 
 const errorHandler = require('./middleware/error.middleware');
 
