@@ -1,3 +1,0 @@
-ID: 691, Email: test@mail.com, Role: undefined, Password: 123456
-ID: 895, Email: user@example.com, Role: admin, Password: password123
-ID: 4299, Email: tejas@123.com, Role: infra, Password: $2b$10$6sS9Qug.YWFJOg5aZZNwF.Lbqmw8ExhUGtJ6/zV5vuzcjm/AP3zAO
