@@ -1,5 +1,6 @@
 const fs = require('fs');
 const bcrypt = require('bcrypt');
+const { createAccessToken, createRefreshToken } = require('../utils/token');
 
 const register = async (req, res, next) => {
 try {
@@ -21,6 +22,7 @@ try {
 };
 
 const generateToken = require('../utils/generateToken');
+
 const login = async (req, res, next) => {
 try {
     const { id , password} = req.body; 
@@ -49,9 +51,17 @@ try {
     const email = userLine?.split(',')[1]?.trim().split(':')[1]?.trim();   
     const role = userLine?.split(',')[2]?.trim().split(':')[1]?.trim();
     const user = { id: id, email: email, role: role };
-    const token = generateToken(user);
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user, 0);
 
-    res.status(200).json({ message: 'User logged in successfully', token });
+    res.cookie('refreshToken', refreshToken, {
+    httpOnly: true
+    });
+
+    res.status(200).json({
+  message: 'User logged in successfully',
+  accessToken
+});
 } catch (error) {
     next(error);
 }
