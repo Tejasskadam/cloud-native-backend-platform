@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const { createAccessToken } = require('../utils/token');
 const fs = require('fs');
 const path = require('path');
 
@@ -18,36 +17,35 @@ try {
     process.exit(1);
 }
 
-const refresh = async (req, res, next) => {
-  try {
-    console.log(req.cookies);
-    const refreshToken = req.cookies.refreshToken;
-    console.log('Cookies:', req.cookies);
-console.log('Refresh Token:', refreshToken);
-    if (!refreshToken) {
-      return res.status(401).json({ message: 'No refresh token' });
-    }
+const { hashToken, createAccessToken, createRefreshToken } = require('../utils/token');
+const User = require('../models/user.model');
 
-    const payload = jwt.verify(
-      refreshToken,
-      publicKey
-    );
+const refresh = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.sendStatus(401);
 
-    const user = {
-      id: payload.id,
-      role: payload.role || 'USER'
-    };
+  const payload = jwt.verify(refreshToken, publicKey);
 
-    const newAccessToken = createAccessToken(user);
+  const user = await User.findById(payload.id);
+  if (!user) return res.sendStatus(401);
 
-    res.json({ accessToken: newAccessToken });
-    next();
+  if (payload.tokenVersion !== user.tokenVersion) {
+    return res.sendStatus(401);
+  }
 
-} catch (err) {
-  console.log('VERIFY ERROR NAME:', err.name);
-  console.log('VERIFY ERROR MESSAGE:', err.message);
-  return res.status(403).json({ message: 'Invalid refresh token' });
-}
+  // optional rotation
+  const newAccessToken = createAccessToken(user);
+  const newRefreshToken = createRefreshToken(user);
+
+  user.refreshToken = hashToken(newRefreshToken);
+  await user.save();
+
+  res.cookie('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    sameSite: 'Strict'
+  });
+
+  res.json({ accessToken: newAccessToken });
 };
 
 module.exports = { refresh };

@@ -6,6 +6,8 @@ app.use(express.json());
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const connectDB = require('./config/monoDb');
+connectDB();
 const defaultRoute = require('./routes/default.route');
 const healthRoutes = require('./routes/health.route');
 const authRoutes = require('./routes/auth.route');

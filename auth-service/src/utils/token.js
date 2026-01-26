@@ -19,28 +19,26 @@ try {
 }
 
 createAccessToken = (user) => {
-    
 
-    return jwt.sign({id: user.id, email: user.email, role: user.role}, 
+    return jwt.sign({id: user._id, role: user.role, tokenVersion: user.tokenVersion}, 
         privateKey, { algorithm: 'RS256', expiresIn: '15min' });
-      
-
     
 };
 
-createRefreshToken = (user, tokenVersion) => {
+createRefreshToken = (user) => {
 
     return jwt.sign(
-        {id: user.id, tokenVersion: tokenVersion},
+        {id: user._id, tokenVersion: user.tokenVersion},
         privateKey,
         { algorithm: 'RS256', expiresIn: '7d' }
     );
 
 }; 
 
-const hashToken = (token) => 
-     crypto.createHash('sha256').update(token).digest('hex');
-    module.exports = {
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+
+module.exports = {
     createAccessToken,
     createRefreshToken,
     hashToken   
