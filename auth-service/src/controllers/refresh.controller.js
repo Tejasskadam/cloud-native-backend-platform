@@ -24,14 +24,20 @@ const refresh = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.sendStatus(401);
 
-  const payload = jwt.verify(refreshToken, publicKey);
+  const cookidata = jwt.verify(refreshToken, publicKey);
 
-  const user = await User.findById(payload.id);
+  const user = await User.findById(cookidata.id);
   if (!user) return res.sendStatus(401);
 
-  if (payload.tokenVersion !== user.tokenVersion) {
+  if (cookidata.tokenVersion !== user.tokenVersion) {
     return res.sendStatus(401);
   }
+
+  if (hashToken(refreshToken) !== user.refreshToken) {
+    return res.sendStatus(401);
+  }
+
+
 
   // optional rotation
   const newAccessToken = createAccessToken(user);

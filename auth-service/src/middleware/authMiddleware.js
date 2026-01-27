@@ -31,6 +31,7 @@ const protect = async (req, res, next) => {
     if (decoded.tokenVersion !== user.tokenVersion) {
       return res.status(401).json({ message: 'session expired' });
     } 
+    
     req.user = user;
     next();
   } catch (error) {
